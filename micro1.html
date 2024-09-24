@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Microblogging App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        header {
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            padding: 1rem;
+        }
+        main {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        #login-form, #user-dashboard {
+            margin-bottom: 2rem;
+        }
+        #login-form h2, #user-dashboard h2, #feed h2 {
+            margin-bottom: 1rem;
+        }
+        input, textarea, button {
+            margin: 0.5rem; 
+            padding: 0.3rem;
+        }
+        button {
+            background-color: #333;
+            color: #fff;
+            border: none; 
+            cursor: pointer;
+        }
+        ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        li {
+            border: 1px solid #ddd;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        li p {
+            margin: 0;
+        }
+        .like-dislike {
+            margin-top: 0.5rem;
+        }
+        .comment-section {
+            margin-top: 1rem;
+        }
+        .comment {
+            margin-top: 0.5rem;
+            padding-left: 1rem;
+            border-left: 2px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Microblogging App</h1>
+    </header>
+    <main>
+        <div id="login-form">
+            <h2>Login</h2>
+            <input type="text" id="username" placeholder="Username">
+            <button id="login-btn">Login</button>
+        </div>
+        <div id="user-dashboard" style="display: none;">
+            <h2>Welcome, <span id="user-username"></span>!</h2>
+            <textarea id="post-content" placeholder="Write your post..."></textarea>
+            <button id="post-btn">Post</button>
+        </div>
+        <div id="feed">
+            <h2>Feed</h2>
+            <ul id="post-list"></ul>
+        </div>
+    </main>
+    <script>
+        const loginForm = document.getElementById('login-form'); 
+        const usernameInput = document.getElementById('username');
+        const loginButton = document.getElementById('login-btn');
+        const userDashboard = document.getElementById('user-dashboard');
+        const userUsername = document.getElementById('user-username'); 
+        const postContent = document.getElementById('post-content'); 
+        const postButton = document.getElementById('post-btn');
+        const postList = document.getElementById('post-list');
+        let currentUser = null;
+
+        loginButton.addEventListener('click', () => {
+            const username = usernameInput.value.trim();
+            if (username !== '') {
+                currentUser = username; 
+                loginForm.style.display = 'none'; 
+                userDashboard.style.display = 'block'; 
+                userUsername.textContent = username;
+                loadPosts();
+            }
+        }); 
+
+        postButton.addEventListener('click', () => {
+            const content = postContent.value.trim();
+            if (content !== '') {
+                const post = {
+                    username: currentUser,
+                    content: content,
+                    likes: 0,
+                    dislikes: 0,
+                    comments: []
+                };
+                savePost(post); 
+                postContent.value = '';
+                loadPosts();
+            }
+        });
+
+        function savePost(post) {
+            let posts = JSON.parse(localStorage.getItem('posts')) || [];
+            posts.push(post);
+            localStorage.setItem('posts', JSON.stringify(posts));
+        }
+
+        function loadPosts() {
+            postList.innerHTML = '';
+            const posts = JSON.parse(localStorage.getItem('posts')) || [];
+            posts.forEach((post, index) => {
+                const postItem = document.createElement('li');
+                postItem.innerHTML = `
+                    <p><strong>${post.username}</strong>: ${post.content}</p>
+                    <div class="like-dislike">
+                        <button onclick="likePost(${index})">Like (${post.likes})</button>
+                        <button onclick="dislikePost(${index})">Dislike (${post.dislikes})</button>
+                    </div>
+                    <div class="comment-section">
+                        <textarea id="comment-input-${index}" placeholder="Write a comment..."></textarea>
+                        <button onclick="addComment(${index})">Comment</button>
+                        <div id="comments-${index}">
+                            ${post.comments.map(comment => `<div class="comment"><strong>${comment.username}</strong>: ${comment.content}</div>`).join('')}
+                        </div>
+                    </div>
+                `; 
+                postList.appendChild(postItem);
+            });
+        }
+
+        function likePost(index) {
+            let posts = JSON.parse(localStorage.getItem('posts'));
+            posts[index].likes++;
+            localStorage.setItem('posts', JSON.stringify(posts));
+            loadPosts(); // Reload posts to update the display
+        }
+
+        function dislikePost(index) {
+            let posts = JSON.parse(localStorage.getItem('posts'));
+            posts[index].dislikes++;
+            localStorage.setItem('posts', JSON.stringify(posts));
+            loadPosts(); // Reload posts to update the display
+        }
+
+        function addComment(index) {
+            const commentInput = document.getElementById(`comment-input-${index}`);
+            const commentContent = commentInput.value.trim();
+            if (commentContent !== '') {
+                let posts = JSON.parse(localStorage.getItem('posts'));
+                posts[index].comments.push({ username: currentUser, content: commentContent });
+                localStorage.setItem('posts', JSON.stringify(posts));
+                commentInput.value = '';
+                loadPosts(); // Reload posts to update the display
+            }
+        }
+
+        if (localStorage.getItem('posts') === null) {
+            localStorage.setItem('posts', JSON.stringify([]));
+        }
+    </script>
+</body>
+</html>
