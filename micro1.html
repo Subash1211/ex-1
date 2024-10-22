@@ -1,181 +1,160 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Microblogging App</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-        }
-        header {
-            background-color: #333;
-            color: #fff;
-            text-align: center;
-            padding: 1rem;
-        }
-        main {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
-        #login-form, #user-dashboard {
-            margin-bottom: 2rem;
-        }
-        #login-form h2, #user-dashboard h2, #feed h2 {
-            margin-bottom: 1rem;
-        }
-        input, textarea, button {
-            margin: 0.5rem; 
-            padding: 0.3rem;
-        }
-        button {
-            background-color: #333;
-            color: #fff;
-            border: none; 
-            cursor: pointer;
-        }
-        ul {
-            list-style-type: none;
-            padding-left: 0;
-        }
-        li {
-            border: 1px solid #ddd;
-            padding: 1rem;
-            margin-bottom: 1rem;
-        }
-        li p {
-            margin: 0;
-        }
-        .like-dislike {
-            margin-top: 0.5rem;
-        }
-        .comment-section {
-            margin-top: 1rem;
-        }
-        .comment {
-            margin-top: 0.5rem;
-            padding-left: 1rem;
-            border-left: 2px solid #ddd;
-        }
-    </style>
+    <link rel="stylesheet" href="micro.css">
 </head>
 <body>
-    <header>
-        <h1>Microblogging App</h1>
-    </header>
-    <main>
-        <div id="login-form">
-            <h2>Login</h2>
-            <input type="text" id="username" placeholder="Username">
-            <button id="login-btn">Login</button>
+<header>
+    <h1>Microblogging App</h1>
+</header>
+<main>
+    <div id="login-form">
+        <h2>Login</h2>
+        <input type="text" id="username" placeholder="Username" required>
+        <input type="password" id="password" placeholder="Password" required>
+        <button id="login-btn">Login</button>
+    </div>
+    <div id="user-dashboard" style="display: none;">
+        <h2>Welcome, <span id="user-username"></span>!</h2>
+        <textarea id="post-content" placeholder="Write your post..."></textarea>
+        <button id="post-btn">Post</button>
+    </div>
+    <div id="feed" style="display: none;">
+        <h2>Feed</h2>
+        <ul id="post-list"></ul>
+    </div>
+</main>
+<script>
+const validUsername = "SUBASH"; // Updated username
+const validPassword = "123";   // Updated password
+
+document.getElementById('login-btn').addEventListener('click', function() {
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+
+    // Check if username and password match
+    if (username === validUsername && password === validPassword) {
+        document.getElementById('user-username').innerText = username;
+        document.getElementById('login-form').style.display = 'none';
+        document.getElementById('user-dashboard').style.display = 'block';
+        document.getElementById('feed').style.display = 'block'; // Show feed after login
+        loadPosts(); // Load posts after login
+    } else {
+        alert("Username and password must be the same!");
+    }
+});
+
+// Load existing posts from localStorage
+const loadPosts = () => {
+    const posts = JSON.parse(localStorage.getItem('posts')) || [];
+    posts.forEach(post => {
+        createPost(post.content, post.dateTime, post.likes, post.disliked, post.comments);
+    });
+};
+
+// Create a post
+const createPost = (content, dateTime = new Date().toLocaleString(), likes = 0, disliked = false, comments = []) => {
+    const postList = document.getElementById('post-list');
+    const newPost = document.createElement('li');
+    
+    // Create the post content section with emojis and date/time
+    newPost.innerHTML = `
+        <p>${content}</p>
+        <p class="post-time">🕒 Posted on: ${dateTime}</p>
+        <button class="share-btn">🔗 Share</button>
+        <button class="like-btn">👍 Like <span class="like-count">${likes}</span></button>
+        <button class="dislike-btn">👎 Dislike</button>
+        <button class="delete-btn">🗑️ Delete</button>
+        <button class="comment-btn">💬 Comment</button>
+        <div class="comments" style="display: none;">
+            <input type="text" class="comment-input" placeholder="Add a comment...">
+            <button class="add-comment-btn">Add</button>
+            <ul class="comment-list">${comments.map(comment => `<li>${comment}</li>`).join('')}</ul>
         </div>
-        <div id="user-dashboard" style="display: none;">
-            <h2>Welcome, <span id="user-username"></span>!</h2>
-            <textarea id="post-content" placeholder="Write your post..."></textarea>
-            <button id="post-btn">Post</button>
-        </div>
-        <div id="feed">
-            <h2>Feed</h2>
-            <ul id="post-list"></ul>
-        </div>
-    </main>
-    <script>
-        const loginForm = document.getElementById('login-form'); 
-        const usernameInput = document.getElementById('username');
-        const loginButton = document.getElementById('login-btn');
-        const userDashboard = document.getElementById('user-dashboard');
-        const userUsername = document.getElementById('user-username'); 
-        const postContent = document.getElementById('post-content'); 
-        const postButton = document.getElementById('post-btn');
-        const postList = document.getElementById('post-list');
-        let currentUser = null;
+    `;
 
-        loginButton.addEventListener('click', () => {
-            const username = usernameInput.value.trim();
-            if (username !== '') {
-                currentUser = username; 
-                loginForm.style.display = 'none'; 
-                userDashboard.style.display = 'block'; 
-                userUsername.textContent = username;
-                loadPosts();
-            }
-        }); 
+    postList.appendChild(newPost);
 
-        postButton.addEventListener('click', () => {
-            const content = postContent.value.trim();
-            if (content !== '') {
-                const post = {
-                    username: currentUser,
-                    content: content,
-                    likes: 0,
-                    dislikes: 0,
-                    comments: []
-                };
-                savePost(post); 
-                postContent.value = '';
-                loadPosts();
-            }
-        });
-
-        function savePost(post) {
-            let posts = JSON.parse(localStorage.getItem('posts')) || [];
-            posts.push(post);
-            localStorage.setItem('posts', JSON.stringify(posts));
+    // Like button functionality
+    newPost.querySelector('.like-btn').addEventListener('click', function() {
+        if (!disliked) { // Only allow liking if not disliked
+            likes++;
+            newPost.querySelector('.like-count').textContent = likes;
+            newPost.querySelector('.like-btn').disabled = true; // Disable like button after one like
+            newPost.querySelector('.dislike-btn').disabled = true; // Disable dislike after liking
+            savePosts(); // Save after like
         }
+    });
 
-        function loadPosts() {
-            postList.innerHTML = '';
-            const posts = JSON.parse(localStorage.getItem('posts')) || [];
-            posts.forEach((post, index) => {
-                const postItem = document.createElement('li');
-                postItem.innerHTML = `
-                    <p><strong>${post.username}</strong>: ${post.content}</p>
-                    <div class="like-dislike">
-                        <button onclick="likePost(${index})">Like (${post.likes})</button>
-                        <button onclick="dislikePost(${index})">Dislike (${post.dislikes})</button>
-                    </div>
-                    <div class="comment-section">
-                        <textarea id="comment-input-${index}" placeholder="Write a comment..."></textarea>
-                        <button onclick="addComment(${index})">Comment</button>
-                        <div id="comments-${index}">
-                            ${post.comments.map(comment => `<div class="comment"><strong>${comment.username}</strong>: ${comment.content}</div>`).join('')}
-                        </div>
-                    </div>
-                `; 
-                postList.appendChild(postItem);
-            });
+    // Dislike button functionality
+    newPost.querySelector('.dislike-btn').addEventListener('click', function() {
+        if (!disliked) { // Only allow disliking if not already disliked
+            disliked = true;
+            newPost.querySelector('.dislike-btn').disabled = true; // Disable dislike button after one dislike
+            newPost.querySelector('.like-btn').disabled = true; // Disable like after disliking
+            savePosts(); // Save after dislike
         }
+    });
 
-        function likePost(index) {
-            let posts = JSON.parse(localStorage.getItem('posts'));
-            posts[index].likes++;
-            localStorage.setItem('posts', JSON.stringify(posts));
-            loadPosts(); // Reload posts to update the display
-        }
+    // Delete button functionality
+    newPost.querySelector('.delete-btn').addEventListener('click', function() {
+        postList.removeChild(newPost);
+        savePosts(); // Save after deleting
+    });
 
-        function dislikePost(index) {
-            let posts = JSON.parse(localStorage.getItem('posts'));
-            posts[index].dislikes++;
-            localStorage.setItem('posts', JSON.stringify(posts));
-            loadPosts(); // Reload posts to update the display
-        }
+    // Share button functionality
+    newPost.querySelector('.share-btn').addEventListener('click', function() {
+        alert('Post shared! 🔗');
+    });
 
-        function addComment(index) {
-            const commentInput = document.getElementById(`comment-input-${index}`);
-            const commentContent = commentInput.value.trim();
-            if (commentContent !== '') {
-                let posts = JSON.parse(localStorage.getItem('posts'));
-                posts[index].comments.push({ username: currentUser, content: commentContent });
-                localStorage.setItem('posts', JSON.stringify(posts));
-                commentInput.value = '';
-                loadPosts(); // Reload posts to update the display
-            }
-        }
+    // Comment button functionality
+    newPost.querySelector('.comment-btn').addEventListener('click', function() {
+        const commentsDiv = newPost.querySelector('.comments');
+        commentsDiv.style.display = commentsDiv.style.display === 'none' ? 'block' : 'none';
+    });
 
-        if (localStorage.getItem('posts') === null) {
-            localStorage.setItem('posts', JSON.stringify([]));
+    // Add comment functionality
+    newPost.querySelector('.add-comment-btn').addEventListener('click', function() {
+        const commentInput = newPost.querySelector('.comment-input');
+        const commentText = commentInput.value;
+        if (commentText) {
+            const commentList = newPost.querySelector('.comment-list');
+            const newComment = document.createElement('li');
+            newComment.textContent = commentText;
+            commentList.appendChild(newComment);
+            commentInput.value = ''; // Clear input
+            comments.push(commentText); // Update comments array
+            savePosts(); // Save after adding comment
         }
-    </script>
+    });
+};
+
+// Save posts to localStorage
+const savePosts = () => {
+    const posts = Array.from(document.getElementById('post-list').children).map(post => ({
+        content: post.querySelector('p').textContent,
+        dateTime: post.querySelector('.post-time').textContent.replace('🕒 Posted on: ', ''), // Save the original date/time
+        likes: parseInt(post.querySelector('.like-count').textContent),
+        disliked: post.querySelector('.dislike-btn').disabled, // Check if the post was disliked
+        comments: Array.from(post.querySelector('.comment-list').children).map(comment => comment.textContent)
+    }));
+    localStorage.setItem('posts', JSON.stringify(posts));
+};
+
+// Add new post
+document.getElementById('post-btn').addEventListener('click', function() {
+    const postContent = document.getElementById('post-content').value;
+    if (postContent) {
+        createPost(postContent); // Create post without likes and comments initially
+        document.getElementById('post-content').value = ''; // Clear textarea
+        savePosts(); // Save after adding new post
+    }
+});
+
+</script>
 </body>
 </html>
