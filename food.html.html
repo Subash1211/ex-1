@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="styles.css">
+  <title>Food Delivery</title>
+  <style>
+    .checkout-btn {
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+      margin-top: 20px;
+    }
+
+    .checkout-btn:hover {
+      background-color: #45a049;
+    }
+
+    /* Modal Styles */
+    .modal {
+      display: none; /* Hidden by default */
+      position: fixed; /* Stay in place */
+      z-index: 1; /* Sit on top */
+      left: 0;
+      top: 0;
+      width: 100%; /* Full width */
+      height: 100%; /* Full height */
+      overflow: auto; /* Enable scroll if needed */
+      background-color: rgb(0,0,0); /* Fallback color */
+      background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+      padding-top: 60px;
+    }
+
+    .modal-content {
+      background-color: #fefefe;
+      margin: 5% auto; /* 15% from the top and centered */
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%; /* Could be more or less, depending on screen size */
+    }
+
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+    }
+
+    .close:hover,
+    .close:focus {
+      color: black;
+      text-decoration: none;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Food Delivery</h1>
+  </header>
+  <div class="menu">
+    <div class="item">
+      <img src="burger.jpg" alt="Burger">
+      <h2>Burger</h2>
+      <p>Delicious burger with all the fixings.</p>
+      <span class="price">₹120</span>
+      <button class="add-to-cart">Add to Cart</button>
+    </div>
+    <div class="item">
+      <img src="pizza.jpg" alt="Pizza">
+      <h2>Pizza</h2>
+      <p>Classic cheese pizza with tomato sauce.</p>
+      <span class="price">₹200</span>
+      <button class="add-to-cart">Add to Cart</button>
+    </div>
+    <div class="item">
+      <img src="C:\Users\admin\Pictures\briyani.jpg" alt="Biryani">
+      <h2>Biryani</h2>
+      <p>Spicy biryani</p>
+      <span class="price">₹250</span>
+      <button class="add-to-cart">Add to Cart</button>
+    </div>
+    <div class="item">
+      <img src="C:\Users\admin\Pictures\grill.jpg" alt="Grill">
+      <h2>Grill Chicken</h2>
+      <p>Zesty chili-lime grilled chicken</p>
+      <span class="price">₹300</span>
+      <button class="add-to-cart">Add to Cart</button>
+    </div>
+  </div>
+  <div class="cart">
+    <h2>Cart</h2>
+    <ul id="cart-items"></ul>
+    <h3>Total: ₹<span id="cart-total">0.00</span></h3>
+
+    <!-- Checkout Button -->
+    <button class="checkout-btn" id="checkout-btn">Checkout</button>
+  </div>
+
+  <!-- Modal for Delivery Address -->
+  <div id="address-modal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2>Delivery Address</h2>
+      <input type="text" id="delivery-address" placeholder="Enter your delivery address" style="width: 100%; padding: 10px; margin-top: 10px;">
+      <button id="confirm-address" style="margin-top: 20px;">Confirm Address</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+  <script>
+    // Get modal elements
+    const modal = document.getElementById('address-modal');
+    const checkoutButton = document.getElementById('checkout-btn');
+    const closeModal = document.getElementsByClassName('close')[0];
+    const confirmAddressButton = document.getElementById('confirm-address');
+
+    // Show the modal when Checkout button is clicked
+    checkoutButton.addEventListener('click', function() {
+      modal.style.display = "block";
+    });
+
+    // Close the modal when the user clicks on <span> (x)
+    closeModal.onclick = function() {
+      modal.style.display = "none";
+    }
+
+    // Close the modal when the user clicks anywhere outside of the modal
+    window.onclick = function(event) {
+      if (event.target == modal) {
+        modal.style.display = "none";
+      }
+    }
+
+    // Confirm address and show notification
+    confirmAddressButton.addEventListener('click', function() {
+      const address = document.getElementById('delivery-address').value;
+      if (address) {
+        alert('Thank you for your purchase! Your order will be delivered to: ' + address);
+        modal.style.display = "none"; // Close modal
+        // You can add additional functionality here, like processing the order
+      } else {
+        alert('Please enter a delivery address.');
+      }
+    });
+  </script>
+</body>
+</html>
