@@ -1,4 +1,146 @@
-<script>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="styles.css">
+  <title>Food Delivery</title>
+  <style>
+    .checkout-btn {
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+      margin-top: 20px;
+    }
+
+    .checkout-btn:hover {
+      background-color: #45a049;
+    }
+
+    /* Modal Styles */
+    .modal {
+      display: none; /* Hidden by default */
+      position: fixed; /* Stay in place */
+      z-index: 1; /* Sit on top */
+      left: 0;
+      top: 0;
+      width: 100%; /* Full width */
+      height: 100%; /* Full height */
+      overflow: auto; /* Enable scroll if needed */
+      background-color: rgb(0,0,0); /* Fallback color */
+      background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+      padding-top: 60px;
+    }
+
+    .modal-content {
+      background-color: #fefefe;
+      margin: 5% auto; /* 15% from the top and centered */
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%; /* Could be more or less, depending on screen size */
+    }
+
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+    }
+
+    .close:hover,
+    .close:focus {
+      color: black;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .menu {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-around;
+      margin: 20px;
+    }
+
+    .item {
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      padding: 10px;
+      margin: 10px;
+      width: 200px;
+      text-align: center;
+    }
+
+    .item img {
+      width: 100%; /* Make image responsive */
+      height: auto;
+      border-radius: 5px;
+    }
+
+    .price {
+      display: block;
+      font-size: 18px;
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Food Delivery</h1>
+  </header>
+  <div class="menu">
+    <div class="item">
+      <img src="https://www.foodandwine.com/thmb/DI29Houjc_ccAtFKly0BbVsusHc=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/crispy-comte-cheesburgers-FT-RECIPE0921-6166c6552b7148e8a8561f7765ddf20b.jpg" alt="Burger"> <!-- Ensure the image path is correct -->
+      <h2>Burger</h2>
+      <p>Delicious burger with all the fixings.</p>
+      <span class="price">₹120</span>
+      <button class="add-to-cart">Add to Cart</button>
+    </div>
+    <div class="item">
+      <img src="https://www.indianhealthyrecipes.com/wp-content/uploads/2015/10/pizza-recipe-1.jpg" alt="Pizza"> <!-- Ensure the image path is correct -->
+      <h2>Pizza</h2>
+      <p>Classic cheese pizza with tomato sauce.</p>
+      <span class="price">₹200</span>
+      <button class="add-to-cart">Add to Cart</button>
+    </div>
+    <div class="item">
+      <img src="https://www.indianhealthyrecipes.com/wp-content/uploads/2021/12/chicken-biryani-recipe-480x270.jpg" alt="Biryani"> <!-- Ensure the image path is correct -->
+      <h2>Biryani</h2>
+      <p>Spicy biryani</p>
+      <span class="price">₹250</span>
+      <button class="add-to-cart">Add to Cart</button>
+    </div>
+    <div class="item">
+      <img src="https://static01.nyt.com/images/2017/06/01/dining/01PORKBURGER/01PORKBURGER-square640.jpg" alt="Grill Chicken"> <!-- Ensure the image path is correct -->
+      <h2>Grill Chicken</h2>
+      <p>Zesty chili-lime grilled chicken</p>
+      <span class="price">₹300</span>
+      <button class="add-to-cart">Add to Cart</button>
+    </div>
+  </div>
+  <div class="cart">
+    <h2>Cart</h2>
+    <ul id="cart-items"></ul>
+    <h3>Total: ₹<span id="cart-total">0.00</span></h3>
+
+    <!-- Checkout Button -->
+    <button class="checkout-btn" id="checkout-btn">Checkout</button>
+  </div>
+
+  <!-- Modal for Delivery Address -->
+  <div id="address-modal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2>Delivery Address</h2>
+      <input type="text" id="delivery-address" placeholder="Enter your delivery address" style="width: 100%; padding: 10px; margin-top: 10px;">
+      <button id="confirm-address" style="margin-top: 20px;">Confirm Address</button>
+    </div>
+  </div>
+
+  <script>
   // Get modal elements
   const modal = document.getElementById('address-modal');
   const checkoutButton = document.getElementById('checkout-btn');
@@ -69,3 +211,7 @@
     });
   });
 </script>
+
+</body>
+</html>
+
